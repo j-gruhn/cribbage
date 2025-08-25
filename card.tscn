@@ -1,0 +1,26 @@
+[gd_scene load_steps=3 format=3 uid="uid://cv4v0nyghra4c"]
+
+[ext_resource type="Script" uid="uid://cn57w2v3bh1ee" path="res://card.gd" id="1_kikvd"]
+[ext_resource type="Texture2D" uid="uid://d26hrqc1slldh" path="res://art/back.png" id="2_rjlel"]
+
+[node name="Card" type="Area2D"]
+script = ExtResource("1_kikvd")
+
+[node name="Sprite2D" type="Sprite2D" parent="."]
+position = Vector2(-50, -75)
+texture = ExtResource("2_rjlel")
+
+[node name="Overlay" type="ColorRect" parent="."]
+offset_left = -98.0
+offset_top = -147.0
+offset_right = -1.0
+offset_bottom = -2.0
+color = Color(0, 0, 0, 0.552941)
+metadata/_edit_use_anchors_ = true
+
+[node name="CollisionPolygon2D" type="CollisionPolygon2D" parent="."]
+position = Vector2(-50, -75)
+polygon = PackedVector2Array(-48.5, -72.5, -48.5, 72.5, 48.5, 72.5, 48.5, -72.5)
+metadata/_edit_group_ = true
+
+[connection signal="input_event" from="." to="." method="_on_input_event"]
