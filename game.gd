@@ -6,14 +6,22 @@ var DECK_SHUFFLED: Array = []
 var CARD_RANK: Dictionary
 var CARD_X: Dictionary
 var CARD_Y: Dictionary
+var PLAYER_COLOR: Dictionary
 
 var HAND_PLAYER: Array = []
 var HAND_COMPUTER: Array = []
 var PLAYED_PLAYER: Array = []
 var PLAYED_COMPUTER: Array = []
 var CRIB: Array = []
-var DEALER: String
+var PLAYER_DEALER: Variant = null
 var PLAYER_TURN: bool
+var turn_display: String:
+	get:
+		return 'Player' if PLAYER_TURN else 'Computer'
+var dealer_display: String:
+	get:
+		return 'Player' if PLAYER_DEALER else 'Computer'
+
 
 @export var DIFFICULTY: String = 'EASY'
 @export var STAGE: String
@@ -28,26 +36,35 @@ signal card_was_clicked
 @onready var cards_player_node = $Cards_Player
 @onready var cards_computer_node = $Cards_Computer
 @onready var cards_crib_node = $Cards_Crib
+@onready var cards_cut_node = $Cards_Cut
 
 @onready var game_log = $Table/GameLog
 @onready var table_button = $Table/Button
+@onready var table_arrow = $Table/NextArrow
 @onready var label_played = $Table/Label_RunningTotal
 @onready var score_played = $Table/Score_RunningTotal
+@onready var label_score_entry = $Table/Label_ScoreEntry
+@onready var score_entry = $Table/ScoreEntry
+@onready var score_player = $Table/Score_Player
+@onready var score_computer = $Table/Score_Computer
+@onready var score_round = $Table/Score_Round
+@onready var label_scoreround = $Table/Label_ScoreRound
 
 var card_scene = preload("res://card.tscn")
 
 func _ready():
-	running_total_display_toggle()
+	play_cards_display_toggle()
 	
 	prep_playing_field()
 	shuffle_deck()
 	play_game()
 	
 func play_game():
-	DEALER = cut_for_deal()
+	cut_for_deal()
 	
 	table_button.visible = true
 	table_button.text = "Deal"
+	table_arrow.visible = false
 	
 	await table_button.pressed
 	discard_all_cards()
@@ -62,12 +79,28 @@ func play_game():
 	select_cards_for_crib_player()
 	await table_button.pressed
 	select_cards_for_crib_computer()
-	rearrange_cards()
+	place_crib()
 	print(CRIB)
 	
+	## determined earlier in deal, this is just instantiating the child
+	show_cut_card()
+	
 	STAGE = 'play_cards'
-	running_total_display_toggle()
-	play_cards()
+	play_cards_display_toggle()
+	rearrange_cards()
+	await play_cards()
+	await get_tree().create_timer(2.0).timeout
+	
+	STAGE = 'score_hands'
+	play_cards_display_toggle()
+	rearrange_cards()
+	await score_hands()
+	
+	STAGE = 'score_crib'
+	populate_crib()
+	await score_crib()
+	
+	discard_all_cards(cards_cut_node)
 
 func prep_playing_field():
 	## building deck of cards and scoring attributes
@@ -93,12 +126,21 @@ func prep_playing_field():
 			DECK.append(rank + suit)
 			
 	## X and Y coordinates for card positions on table
-	for i in range(6):
+	for i in range(7):
 		CARD_X[i] = 130 + i * 120
+	CARD_X[4.5] = 130 + 4.5 * 120
 		
 	CARD_Y = {
 		'Player': 600,
-		'Computer': 200
+		'Computer': 200,
+		'Cut': 400,
+		'Player_Crib': 500,
+		'Computer_Crib': 300
+	}
+	
+	PLAYER_COLOR = {
+		'Player': '0000ff',
+		'Computer': 'ff0000'
 	}
 
 func shuffle_deck():
@@ -140,16 +182,16 @@ func cut_for_deal():
 		computer_rank = CARD_RANK[computer_cut[0]][1]
 				
 		if player_rank < computer_rank:
-			cut_winner = 'Player'
+			PLAYER_DEALER = true
 		elif computer_rank < player_rank:
-			cut_winner = 'Computer'
+			PLAYER_DEALER = false
 		else:
-			cut_winner = 'NONE'
+			PLAYER_DEALER = null
 			
-		if cut_winner != 'NONE':
-			game_log.push_color(Color("00ff00"))
-			game_log.add_text(cut_winner + ' wins the deal\n')
-			return cut_winner
+		if PLAYER_DEALER != null:
+			game_log.push_color(Color(PLAYER_COLOR[dealer_display]))
+			game_log.add_text(dealer_display + ' wins the deal\n')
+			break
 	
 	
 func deal():
@@ -160,7 +202,7 @@ func deal():
 		hand_1.append(DECK_SHUFFLED[i])
 		hand_2.append(DECK_SHUFFLED[i+1])
 
-	if DEALER == "Player":
+	if PLAYER_DEALER == true:
 		HAND_PLAYER = hand_1
 		HAND_COMPUTER = hand_2
 	else:
@@ -187,12 +229,17 @@ func deal():
 		card.show_back()
 		card.selected = false
 		
+	var card = card_scene.instantiate()
+	card.code = card_cut
+	cards_cut_node.add_child(card)
+	card.position = Vector2(CARD_X[4.5], CARD_Y['Cut'])
+	card.show_back()
+		
 func select_cards_for_crib_player():
 	
-	table_button.text = "Send cards to " + DEALER + "'s crib"
+	table_button.text = "Send cards to " + dealer_display + "'s crib"
 	table_button.disabled = true
 	table_button.visible = true
-	
 	
 func select_cards_for_crib_computer():	
 	var card: Area2D
@@ -207,44 +254,90 @@ func select_cards_for_crib_computer():
 			cards_computer_node.remove_child(card)
 			card.queue_free()
 					
-func rearrange_cards():
-	for i in range(4):
-		cards_player_node.get_child(i).position = Vector2(CARD_X[i + 2], CARD_Y['Player'])
-		cards_computer_node.get_child(i).position = Vector2(CARD_X[i + 2], CARD_Y['Computer'])
+func place_crib():	
+	## dummy card to represent dealer
+	var card = card_scene.instantiate()
+	cards_crib_node.add_child(card)
+	card.position = Vector2(CARD_X[6], CARD_Y['Player_Crib' if PLAYER_DEALER else 'Computer_Crib'])
+	card.show_back()
+	
+func populate_crib():
+	discard_all_cards(cards_crib_node)
+	
+	for card_code in CRIB:
+		var card = card_scene.instantiate()
+		card.code = card_code
+		cards_crib_node.add_child(card)
+		card.show_face()
 		
+	rearrange_cards()
+	
+func show_cut_card():
+	for j in cards_cut_node.get_children():
+		j.show_face()
+	
+func rearrange_cards():
+	if STAGE == 'score_crib':
+		for i in range(4):
+			cards_crib_node.get_child(i).position = Vector2(CARD_X[i + 2], CARD_Y[dealer_display])
+	else:
+		for i in range(4):
+			cards_player_node.get_child(i).position = Vector2(CARD_X[i + 2], CARD_Y['Player'])
+			cards_computer_node.get_child(i).position = Vector2(CARD_X[i + 2], CARD_Y['Computer'])
+
+
 func play_cards():
 	var go_player: bool
 	var go_computer: bool
+	var i: int = 0
 	
-	PLAYER_TURN = true if DEALER == 'Computer' else false
+	PLAYER_TURN = not PLAYER_DEALER
 		
-	while HAND_PLAYER.size() != 0 and HAND_COMPUTER.size() != 0:
-		if PLAYER_TURN == true:
+	while HAND_PLAYER.size() != 0 or HAND_COMPUTER.size() != 0:
+		if i >= 20:
+			breakpoint
+		if PLAYER_TURN == true and HAND_PLAYER.size() != 0 and go_player == false:
 			go_player = check_card_eligibility_player()
 			if go_player == true:
 				if go_computer == true:
 					## add one point to player score
-					update_running_total('reset')
+					await update_running_total('reset')
+					go_player = false
+					go_computer = false
 				else:
 					pass # go back to loop, computer turn is next
 			else:
 				await play_cards_player()
-		else:
+		elif PLAYER_TURN == false and HAND_COMPUTER.size() != 0 and go_computer == false:
+			arrow_flip()
 			await get_tree().create_timer(1.5).timeout
 			go_computer = await play_cards_computer()
 			if go_computer == true:
 				if go_player == true:
 					## add one point to computer score
-					update_running_total('reset')
+					await update_running_total('reset')
+					go_player = false
+					go_computer = false
 				else:
 					pass # go back to loop, player turn is next
-		
-		PLAYER_TURN = not PLAYER_TURN
+					
+		if HAND_PLAYER.size() == 0:
+			go_player = true
+			PLAYER_TURN = false
+			go_computer = false
+		elif HAND_COMPUTER.size() == 0:
+			go_computer = true
+			PLAYER_TURN = true
+			go_player = false
+		else:
+			PLAYER_TURN = not PLAYER_TURN
+			
+		i += 1
 		
 func play_cards_player():
-	await get_tree().process_frame
+	arrow_flip()
 	await card_was_clicked
-	update_running_total(PLAYED_PLAYER[-1])
+	await update_running_total(PLAYED_PLAYER[-1])
 
 func play_cards_computer():
 	var card: Area2D
@@ -265,7 +358,7 @@ func play_cards_computer():
 		card.z_index = played_card_offset
 		card.position = Vector2(CARD_X[0] + played_card_offset * 50, CARD_Y['Computer'])
 			
-		update_running_total(PLAYED_COMPUTER[-1])
+		await update_running_total(PLAYED_COMPUTER[-1])
 		
 		return false
 	else:
@@ -295,18 +388,95 @@ func check_card_eligibility_computer():
 			
 	return eligible
 			
+func score_hands():	
+		
+	if PLAYER_DEALER == true:
+		await score_hand_computer()
+		await score_hand_player()
+	else:
+		await score_hand_player()
+		await score_hand_computer()
+		
+		
+		
+func score_hand_player():
+	score_entry_toggle()
+	
+	var player_score = await score_entry.text_submitted
+	
+	### check score, if incorrect add something here to adjust scores
+	### else, use line below
+	score_player.text = str(min(int(score_player.text) + int(score_entry.text), 121))
+	discard_all_cards(cards_player_node)
+	score_entry_toggle()
+	
+	
+func score_hand_computer():
+	await show_hand_score()
+	discard_all_cards(cards_computer_node)
+	
+func ok_to_continue():
+	table_button.text = "OK"
+	table_button.disabled = false
+	table_button.visible = true
+	await table_button.pressed
+	table_button.disabled = true
+	table_button.visible = false
+	
+	
+func score_crib():
+	
+	if PLAYER_DEALER == true:
+		await score_hand_player()
+	else:
+		await score_hand_computer()
+		
+	discard_all_cards(cards_crib_node)
 	
 func get_child_from_card_node(node, card_str):
 	for j in node.get_children():
 		if j.code == str(card_str):
 			return j
 
-func running_total_display_toggle():
+func play_cards_display_toggle():
 	label_played.visible = not label_played.visible
 	score_played.visible = not score_played.visible
 	
 	if score_played.visible == true:
 		score_played.text = '0'
+	
+	arrow_flip()	
+	table_arrow.visible = not table_arrow.visible
+	
+func arrow_flip():
+	table_arrow.flip_v = PLAYER_TURN
+
+func score_entry_toggle():
+	var hand_name: String
+	hand_name = 'Player ' if STAGE == 'score_hands' else 'Crib '
+	label_score_entry.text = hand_name + 'point entry'
+	
+	label_score_entry.visible = not label_score_entry.visible
+	score_entry.visible = not score_entry.visible
+	
+	if score_entry.visible == true:
+		score_entry.release_focus()
+		score_entry.clear()
+		await get_tree().process_frame
+		score_entry.grab_focus()
+		
+func show_hand_score(score=0):
+	label_scoreround.visible = true
+	score_round.visible = true
+	
+	var round_name: String
+	round_name = ' Round ' if STAGE == 'score_hands' else ' Crib '
+	label_scoreround.text = turn_display + round_name + 'Score'
+	score_round.text = str(score)
+	await ok_to_continue()
+	
+	label_scoreround.visible = false
+	score_round.visible = false
 		
 func update_running_total(card_code):
 	var total_score: int
@@ -326,8 +496,15 @@ func update_running_total(card_code):
 			 
 	
 	
-func discard_all_cards():
-	for hand in [cards_player_node, cards_computer_node, cards_crib_node]:
+func discard_all_cards(node=null):
+	var hands: Array
+	
+	if node == null:
+		hands = [cards_player_node, cards_computer_node, cards_crib_node, cards_cut_node]
+	else:
+		hands = [node]
+		
+	for hand in hands:
 		for n in hand.get_children():
 			hand.remove_child(n)
 			n.queue_free()

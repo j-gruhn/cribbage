@@ -1,6 +1,7 @@
-[gd_scene load_steps=8 format=3 uid="uid://cnm1x8s24vyl6"]
+[gd_scene load_steps=9 format=3 uid="uid://cnm1x8s24vyl6"]
 
 [ext_resource type="Script" uid="uid://bwmphlk5qbq5h" path="res://table.gd" id="1_jd0nb"]
+[ext_resource type="Texture2D" uid="uid://ccdip2g522xgv" path="res://art/arrow.png" id="2_v5i0k"]
 
 [sub_resource type="LabelSettings" id="LabelSettings_feb5d"]
 font_size = 24
@@ -29,76 +30,118 @@ font_size = 41
 script = ExtResource("1_jd0nb")
 
 [node name="Label_GameLog" type="Label" parent="."]
-offset_left = 856.0
+offset_left = 905.0
 offset_top = 174.0
-offset_right = 939.0
+offset_right = 988.0
 offset_bottom = 197.0
 text = "Game Log"
 
 [node name="Label_Player" type="Label" parent="."]
-offset_left = 846.0
-offset_top = 24.0
-offset_right = 942.0
-offset_bottom = 64.0
+offset_left = 899.0
+offset_top = 25.0
+offset_right = 995.0
+offset_bottom = 65.0
 text = "Player"
 label_settings = SubResource("LabelSettings_feb5d")
 horizontal_alignment = 1
 
 [node name="Label_Computer" type="Label" parent="."]
-offset_left = 990.0
-offset_top = 24.0
-offset_right = 1107.0
-offset_bottom = 58.0
+offset_left = 1026.0
+offset_top = 25.0
+offset_right = 1143.0
+offset_bottom = 59.0
 text = "Computer"
 label_settings = SubResource("LabelSettings_fc0e3")
 
+[node name="Label_ScoreEntry" type="Label" parent="."]
+offset_left = 64.0
+offset_top = 279.0
+offset_right = 241.0
+offset_bottom = 311.0
+text = "Player point entry"
+horizontal_alignment = 1
+
+[node name="Label_ScoreRound" type="Label" parent="."]
+visible = false
+offset_left = 49.0
+offset_top = 278.0
+offset_right = 255.0
+offset_bottom = 310.0
+text = "Round Score for Computer"
+horizontal_alignment = 1
+
 [node name="Label_RunningTotal" type="Label" parent="."]
-offset_left = 360.0
-offset_top = 267.0
-offset_right = 537.0
-offset_bottom = 299.0
+offset_left = 290.0
+offset_top = 274.0
+offset_right = 467.0
+offset_bottom = 306.0
 text = "Running Total"
 horizontal_alignment = 1
 
 [node name="Score_Player" type="Label" parent="."]
-offset_left = 864.0
-offset_top = 70.0
-offset_right = 927.0
-offset_bottom = 104.0
+offset_left = 917.0
+offset_top = 71.0
+offset_right = 980.0
+offset_bottom = 105.0
 text = "0"
 label_settings = SubResource("LabelSettings_7jktm")
 horizontal_alignment = 1
 
 [node name="Score_Computer" type="Label" parent="."]
-offset_left = 1012.0
-offset_top = 69.0
-offset_right = 1084.0
-offset_bottom = 103.0
+offset_left = 1048.0
+offset_top = 70.0
+offset_right = 1120.0
+offset_bottom = 104.0
 text = "0"
 label_settings = SubResource("LabelSettings_ryrav")
 horizontal_alignment = 1
 
+[node name="Score_Round" type="Label" parent="."]
+visible = false
+offset_left = 82.0
+offset_top = 315.0
+offset_right = 219.0
+offset_bottom = 372.0
+label_settings = SubResource("LabelSettings_v5i0k")
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="Score_RunningTotal" type="Label" parent="."]
-offset_left = 376.0
-offset_top = 302.0
-offset_right = 513.0
-offset_bottom = 359.0
+offset_left = 306.0
+offset_top = 309.0
+offset_right = 443.0
+offset_bottom = 366.0
 text = "0"
 label_settings = SubResource("LabelSettings_v5i0k")
 horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="GameLog" type="RichTextLabel" parent="."]
-offset_left = 862.0
+offset_left = 905.0
 offset_top = 199.0
 offset_right = 1149.0
 offset_bottom = 643.0
 
 [node name="Button" type="Button" parent="."]
-offset_left = 369.0
-offset_top = 281.0
-offset_right = 527.0
-offset_bottom = 325.0
+offset_left = 299.0
+offset_top = 288.0
+offset_right = 457.0
+offset_bottom = 332.0
 text = "default text"
+
+[node name="NextArrow" type="Sprite2D" parent="."]
+position = Vector2(108, 305.75)
+scale = Vector2(1.46875, 1.72656)
+texture = ExtResource("2_v5i0k")
+
+[node name="ScoreEntry" type="LineEdit" parent="."]
+offset_left = 67.0
+offset_top = 310.0
+offset_right = 170.0
+offset_bottom = 360.0
+theme_override_font_sizes/font_size = 41
+alignment = 1
+max_length = 2
+emoji_menu_enabled = false
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

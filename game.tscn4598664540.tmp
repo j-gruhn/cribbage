@@ -10,13 +10,10 @@ script = ExtResource("1_80nbo")
 [node name="Card" parent="." instance=ExtResource("2_feb5d")]
 visible = false
 position = Vector2(702, 110)
+code = null
 
 [node name="Cards_Player" type="Node2D" parent="."]
 
 [node name="Cards_Computer" type="Node2D" parent="."]
-
-[node name="Cards_Crib" type="Node2D" parent="."]
-
-[node name="Cards_Cut" type="Node2D" parent="."]
 
 [node name="Table" parent="." instance=ExtResource("3_feb5d")]
