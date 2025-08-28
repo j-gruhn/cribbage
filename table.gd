@@ -4,8 +4,23 @@ extends CanvasLayer
 @onready var cards_player_node = get_node("/root/Game/Cards_Player")
 
 func _ready():
-	$Score_Player.text = "0"
-	$Score_Computer.text = "0"
+	# Debug prints
+	print("Player color string: ", game.PLAYER_COLOR['Player'])
+	print("Computer color string: ", game.PLAYER_COLOR['Computer'])
+	
+	var player_color = Color("#" + game.PLAYER_COLOR['Player'])
+	var computer_color = Color("#" + game.PLAYER_COLOR['Computer'])
+	
+	print("Player Color object: ", player_color)
+	print("Computer Color object: ", computer_color)
+	
+	$Label_Player.add_theme_color_override("font_color", player_color)
+	$Label_Computer.add_theme_color_override("font_color", computer_color)
+	$Score_Player.add_theme_color_override("font_color", player_color)
+	$Score_Computer.add_theme_color_override("font_color", computer_color)
+	
+	# Debug - check if override was applied
+	print("Label_Player color override: ", $Label_Player.get_theme_color("font_color"))
 	
 	$ScoreEntry.text_changed.connect(_on_score_text_changed)
 	$ScoreEntry.text_submitted.connect(_on_score_submitted)
@@ -13,24 +28,6 @@ func _ready():
 	$ScoreEntry.visible = false
 	$Label_ScoreEntry.visible = false
 	
-	#test_score()
-	
-func test_score():
-	update_score($Score_Player, 2)
-	update_game_log($Score_Player, 'Fifteen')
-	
-func update_score(player, score):
-	var current_score: int
-	var new_score: int
-	
-	current_score = int(player.text)
-	new_score = current_score + score
-	player.text = str(new_score)
-	
-func update_game_log(player, reason):
-	$Log_PointHistory.text += 'Fifteen (+2)'
-	$Log_PointHistory.text += '\n'
-
 
 func _on_button_pressed() -> void:
 	if $Button.text == "Deal":
@@ -45,6 +42,8 @@ func _on_button_pressed() -> void:
 				child.queue_free()
 	if $Button.text == "OK":
 		pass
+	if $Button.text == "Play again":
+		game.GAME_OVER = false
 	
 func _on_score_text_changed(new_text: String):
 	var filtered_text = ''

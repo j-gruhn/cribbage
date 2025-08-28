@@ -14,3 +14,7 @@ config/name="cribbage"
 run/main_scene="res://Game.tscn"
 config/features=PackedStringArray("4.4", "Forward Plus")
 config/icon="res://icon.svg"
+
+[rendering]
+
+environment/defaults/default_clear_color=Color(0.0955582, 0.210449, 0.110582, 1)

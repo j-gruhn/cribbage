@@ -4,6 +4,8 @@ extends Area2D
 
 var sprite: Sprite2D
 var overlay: ColorRect
+var rank1: RichTextLabel
+var rank2: RichTextLabel
 
 @onready var game = get_node("/root/Game")
 @onready var table_button = get_node("/root/Game/Table/Button")
@@ -15,24 +17,50 @@ var card_scene = preload("res://card.tscn")
 
 signal card_clicked
 
+const SUIT_DICT: Dictionary = {
+	'C': ['club', '100101'],
+	'D': ['diamond', 'a81717'],
+	'H': ['heart', 'a81717'],
+	'S': ['spade', '100101']
+}
+
 func _ready():
-	sprite = $Sprite2D
+	sprite = $SuitSprite
 	overlay = $Overlay
+	rank1 = $RankLabel1
+	rank2 = $RankLabel2
 	
 	sprite.visible = true
+	rank1.visible = false
+	rank2.visible = false
 	overlay.color = Color(0, 0, 0, 0.7) # semi-transparent black
 	overlay.visible = false
 	
-
+	
 func show_face():
-	var path = "res://art/%s.png" % code
+	var path = "res://art/%s.png" % SUIT_DICT[code[1]][0]
 	var tex = load(path)
+	var rank_text: String
+	
 	if tex == null:
 		push_warning("Card image not found: " + path)
 	sprite.texture = tex
+	
+	for rank in [rank1, rank2]:
+		rank.clear()
+				
+		if code[0] == 'T':
+			rank_text = ' 10 '
+		else:
+			rank_text = ' ' + code[0] + ' '
+			
+		rank.bbcode_text = "[color=#%s]%s[/color]" % [SUIT_DICT[code[1]][1], rank_text]
+		rank.visible = true
+	
 	overlay.visible = false
 
 func show_back():
+			
 	var tex = load("res://art/back.png")
 	sprite.texture = tex
 	overlay.visible = false
@@ -47,13 +75,13 @@ func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> voi
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.is_pressed() and self.get_parent() == cards_player_node:
 		if game.STAGE == 'crib_selection':
 			if selected == true:
-				sprite.position += Vector2(0, 50)
+				self.position += Vector2(0, 50)
 				selected = false
 				game.CRIB.erase(self.code)
 				table_button.disabled = true
 			else:
 				if game.CRIB.size() < 2:
-					sprite.position += Vector2(0, -50)
+					self.position += Vector2(0, -50)
 					selected = true
 					game.CRIB.append(self.code)
 					

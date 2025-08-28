@@ -1,23 +1,7 @@
-[gd_scene load_steps=9 format=3 uid="uid://cnm1x8s24vyl6"]
+[gd_scene load_steps=5 format=3 uid="uid://cnm1x8s24vyl6"]
 
 [ext_resource type="Script" uid="uid://bwmphlk5qbq5h" path="res://table.gd" id="1_jd0nb"]
 [ext_resource type="Texture2D" uid="uid://ccdip2g522xgv" path="res://art/arrow.png" id="2_v5i0k"]
-
-[sub_resource type="LabelSettings" id="LabelSettings_feb5d"]
-font_size = 24
-font_color = Color(0, 0, 1, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_fc0e3"]
-font_size = 24
-font_color = Color(1, 0, 0, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_7jktm"]
-font_size = 24
-font_color = Color(0, 0, 1, 1)
-
-[sub_resource type="LabelSettings" id="LabelSettings_ryrav"]
-font_size = 24
-font_color = Color(1, 0, 0, 1)
 
 [sub_resource type="SystemFont" id="SystemFont_jd0nb"]
 subpixel_positioning = 0
@@ -29,20 +13,13 @@ font_size = 41
 [node name="Table" type="CanvasLayer"]
 script = ExtResource("1_jd0nb")
 
-[node name="Label_GameLog" type="Label" parent="."]
-offset_left = 905.0
-offset_top = 174.0
-offset_right = 988.0
-offset_bottom = 197.0
-text = "Game Log"
-
 [node name="Label_Player" type="Label" parent="."]
 offset_left = 899.0
 offset_top = 25.0
 offset_right = 995.0
 offset_bottom = 65.0
+theme_override_font_sizes/font_size = 24
 text = "Player"
-label_settings = SubResource("LabelSettings_feb5d")
 horizontal_alignment = 1
 
 [node name="Label_Computer" type="Label" parent="."]
@@ -50,8 +27,8 @@ offset_left = 1026.0
 offset_top = 25.0
 offset_right = 1143.0
 offset_bottom = 59.0
+theme_override_font_sizes/font_size = 24
 text = "Computer"
-label_settings = SubResource("LabelSettings_fc0e3")
 
 [node name="Label_ScoreEntry" type="Label" parent="."]
 offset_left = 64.0
@@ -83,8 +60,8 @@ offset_left = 917.0
 offset_top = 71.0
 offset_right = 980.0
 offset_bottom = 105.0
+theme_override_font_sizes/font_size = 24
 text = "0"
-label_settings = SubResource("LabelSettings_7jktm")
 horizontal_alignment = 1
 
 [node name="Score_Computer" type="Label" parent="."]
@@ -92,8 +69,8 @@ offset_left = 1048.0
 offset_top = 70.0
 offset_right = 1120.0
 offset_bottom = 104.0
+theme_override_font_sizes/font_size = 24
 text = "0"
-label_settings = SubResource("LabelSettings_ryrav")
 horizontal_alignment = 1
 
 [node name="Score_Round" type="Label" parent="."]
@@ -117,10 +94,11 @@ horizontal_alignment = 1
 vertical_alignment = 1
 
 [node name="GameLog" type="RichTextLabel" parent="."]
-offset_left = 905.0
-offset_top = 199.0
+offset_left = 890.0
+offset_top = 154.0
 offset_right = 1149.0
 offset_bottom = 643.0
+scroll_following = true
 
 [node name="Button" type="Button" parent="."]
 offset_left = 299.0
@@ -143,5 +121,14 @@ theme_override_font_sizes/font_size = 41
 alignment = 1
 max_length = 2
 emoji_menu_enabled = false
+
+[node name="Line2D" type="Line2D" parent="."]
+position = Vector2(544.778, 439.562)
+points = PackedVector2Array(333.222, -448.562, 333.222, 210.438)
+width = 5.0
+
+[node name="Line2D2" type="Line2D" parent="."]
+points = PackedVector2Array(879, 143, 1153, 143)
+width = 5.0
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
