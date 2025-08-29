@@ -34,9 +34,6 @@ var dealer_display: String:
 var card_code: String
 var round_count: int
 
-signal card_was_clicked
-
-
 #@onready var card = $Card
 @onready var cards_player_node = $Cards_Player
 @onready var cards_computer_node = $Cards_Computer
@@ -45,6 +42,7 @@ signal card_was_clicked
 
 @onready var game_log = $Table/GameLog
 @onready var table_button = $Table/Button
+@onready var button_quit = $Table/Button_Quit
 @onready var table_arrow = $Table/NextArrow
 @onready var label_played = $Table/Label_RunningTotal
 @onready var score_played = $Table/Score_RunningTotal
@@ -54,6 +52,7 @@ signal card_was_clicked
 @onready var score_computer = $Table/Score_Computer
 @onready var score_round = $Table/Score_Round
 @onready var label_scoreround = $Table/Label_ScoreRound
+
 
 var card_scene = preload("res://card.tscn")
 
@@ -67,26 +66,42 @@ var PLAYER_COLOR: Dictionary = {
 	'metadata': 'dde0e9'
 }
 
+signal card_was_clicked
+signal button_was_clicked
+
 func _ready():
-	play_cards_display_toggle()
+	while true:
+		show_menu()
+		await button_was_clicked
+	
+		await gameplay_main()
+
+func gameplay_main():
+	show_table()
 	prep_playing_field()
 	table_arrow.visible = false
 	
 	while true:
+		GAME_OVER = false
 		await play_game()
 		
 		table_button.visible = true
 		table_button.text = 'Play again'
 		table_button.disabled = false
-		await table_button.pressed
-		
+		button_quit.visible = true
+		await button_was_clicked
+		discard_all_cards()
+		if GAME_OVER == true:
+			break
+		else:
+			show_table()
 	
 func play_game():
 	shuffle_deck()
 	cut_for_deal()
 	
 	table_button.visible = true
-	table_button.text = "Deal"
+	table_button.text = "Play"
 	await table_button.pressed
 	discard_all_cards()
 	
@@ -96,7 +111,7 @@ func play_game():
 		game_log.push_color(Color(PLAYER_COLOR['metadata']))
 		game_log.add_text('-------------------------------------------\n')
 		game_log.add_text('Round ' + str(round_count) + '\n')
-		game_log.push_color(Color(PLAYER_COLOR['Player']))
+		game_log.push_color(Color(PLAYER_COLOR[dealer_display]))
 		game_log.add_text(dealer_display + ' deals\n\n')
 		
 		shuffle_deck()
@@ -106,10 +121,14 @@ func play_game():
 		print(CARD_CUT)
 		
 		STAGE = 'crib_selection'
+		PLAYER_TURN = PLAYER_DEALER
+		arrow_flip()
+		table_arrow.visible = true
 		select_cards_for_crib_player()
 		await table_button.pressed
 		select_cards_for_crib_computer()
 		place_crib()
+		table_arrow.visible = false
 		print(CRIB)
 		
 		## determined earlier in deal, this is just instantiating the child
@@ -156,6 +175,7 @@ func prep_playing_field():
 		'K': [10,13]
 	}
 	
+	DECK = []
 	for suit in ['C','D','H','S']:
 		for rank in CARD_RANK.keys():
 			DECK.append(rank + suit)
@@ -175,6 +195,7 @@ func prep_playing_field():
 
 func shuffle_deck():
 	var deck_copy = DECK.duplicate()
+	DECK_SHUFFLED = []
 	while deck_copy.size() > 0:
 		var j = randi() % deck_copy.size()
 		DECK_SHUFFLED.append(deck_copy[j])
@@ -248,6 +269,10 @@ func deal():
 	#HAND_COMPUTER = ['AC','AD','AH','AS','KC','KS']
 	#HAND_COMPUTER = ['5S', '5D', '5C', '5C', '5C','5C']
 	#CARD_CUT = '5H'
+	#HAND_PLAYER = ["AS", "AH", "2C", "2D", "3S", "3D"]
+	#HAND_COMPUTER = ["AC", "AD", "2H", "2S", "3C", "3H"]
+	#CARD_CUT = '5S'
+
 	
 	# show player's cards (face up)
 	for i in range(HAND_PLAYER.size()):
@@ -329,6 +354,10 @@ func rearrange_cards():
 		for i in range(4):
 			cards_player_node.get_child(i).position = Vector2(CARD_X[i + 2], CARD_Y['Player'])
 			cards_computer_node.get_child(i).position = Vector2(CARD_X[i + 2], CARD_Y['Computer'])
+			
+			cards_player_node.get_child(i).get_node('Overlay').visible = false
+			cards_computer_node.get_child(i).get_node('Overlay').visible = false
+			
 
 
 func play_cards():
@@ -347,8 +376,8 @@ func play_cards():
 			if go_player == true:
 				if go_computer == true:
 					## add one point to player score
-					update_game_log({'Go':1}, 'Player')
-					update_total_score(1, score_player)
+					update_game_log({'Go':1}, LAST_PLAYED)
+					update_total_score(1, score_player if LAST_PLAYED=='Player' else score_computer)
 					if GAME_OVER: return
 				else:
 					pass # go back to loop, computer turn is next
@@ -359,13 +388,14 @@ func play_cards():
 				if GAME_OVER: return
 		elif PLAYER_TURN == false and HAND_COMPUTER.size() != 0 and go_computer == false:
 			arrow_flip()
-			await get_tree().create_timer(1.5).timeout
+			if go_player == false:
+				await get_tree().create_timer(1.5).timeout
 			go_computer = await play_cards_computer()
 			if go_computer == true:
 				if go_player == true:
 					## add one point to computer score
-					update_game_log({'Go':1}, 'Computer')
-					update_total_score(1, score_computer)
+					update_game_log({'Go':1}, LAST_PLAYED)
+					update_total_score(1, score_computer if LAST_PLAYED=='Computer' else score_player)
 					if GAME_OVER: return
 				else:
 					pass
@@ -421,7 +451,7 @@ func calculate_points_in_play():
 			update_total_score(((pairs ** 2) - pairs), score_total_current_player)
 			if GAME_OVER: return
 	if PLAYED_ALL_SEQ.size() >= 3:
-		for num_cards in range(rev_seq.size(), 2 -1):
+		for num_cards in range(rev_seq.size(), 2, -1):
 			var run_len: int = 1
 			var run_array: Array = []
 			for i in range(0, num_cards):
@@ -693,15 +723,19 @@ func get_child_from_card_node(node, card_str):
 		if j.code == str(card_str):
 			return j
 
-func play_cards_display_toggle():
-	label_played.visible = not label_played.visible
-	score_played.visible = not score_played.visible
+func play_cards_display_toggle(off_override=false):
+	if off_override == true:
+		label_played.visible = false
+		score_played.visible = false
+		table_arrow.visible = false
+	else:
+		label_played.visible = not label_played.visible
+		score_played.visible = not score_played.visible
+		table_arrow.visible = not table_arrow.visible
+		arrow_flip()
 	
 	if score_played.visible == true:
 		score_played.text = '0'
-	
-	arrow_flip()	
-	table_arrow.visible = not table_arrow.visible
 	
 func arrow_flip():
 	table_arrow.flip_v = PLAYER_TURN
@@ -762,6 +796,11 @@ func update_running_total(card_code):
 	
 	if card_code == 'reset':
 		score_played.text = '0'
+		for node in [cards_computer_node, cards_player_node]:
+			for card in node.get_children():
+				if card.code in PLAYED_PLAYER or card.code in PLAYED_COMPUTER:
+					card.get_node('Overlay').visible = true
+		
 		PLAYED_ALL = []
 		PLAYED_ALL_SEQ = []
 	else:
@@ -792,3 +831,18 @@ func discard_all_cards(node=null):
 		PLAYED_ALL = []
 		PLAYED_ALL_SEQ = []
 		CRIB = []
+		
+func show_menu():
+	$Table.visible = false
+	$Menu.visible = true
+	
+	$Menu.display_menu_cards()
+	
+func show_table():
+	$Menu.visible = false
+	$Table.visible = true
+	
+	table_button.visible = false
+	button_quit.visible = false
+	
+	play_cards_display_toggle(true)

@@ -1,18 +1,13 @@
 extends CanvasLayer
 
 @onready var game = get_node("/root/Game")
+@onready var menu = get_node("/root/Game/Menu")
 @onready var cards_player_node = get_node("/root/Game/Cards_Player")
 
 func _ready():
-	# Debug prints
-	print("Player color string: ", game.PLAYER_COLOR['Player'])
-	print("Computer color string: ", game.PLAYER_COLOR['Computer'])
-	
+
 	var player_color = Color("#" + game.PLAYER_COLOR['Player'])
 	var computer_color = Color("#" + game.PLAYER_COLOR['Computer'])
-	
-	print("Player Color object: ", player_color)
-	print("Computer Color object: ", computer_color)
 	
 	$Label_Player.add_theme_color_override("font_color", player_color)
 	$Label_Computer.add_theme_color_override("font_color", computer_color)
@@ -30,7 +25,7 @@ func _ready():
 	
 
 func _on_button_pressed() -> void:
-	if $Button.text == "Deal":
+	if $Button.text == "Play":
 		$Button.visible = false
 	if $Button.text.ends_with('crib'):
 		var children = cards_player_node.get_children()
@@ -44,6 +39,13 @@ func _on_button_pressed() -> void:
 		pass
 	if $Button.text == "Play again":
 		game.GAME_OVER = false
+		$Button.visible = false
+		game.button_was_clicked.emit()
+	
+func _on_button_quit_pressed() -> void:
+	game.GAME_OVER = true
+	$Button_Quit.visible = false
+	game.button_was_clicked.emit()
 	
 func _on_score_text_changed(new_text: String):
 	var filtered_text = ''
@@ -57,3 +59,7 @@ func _on_score_text_changed(new_text: String):
 	
 func _on_score_submitted(text: String):
 	var score = int(text) if text != '' else 0
+
+
+func _on_help_button_pressed() -> void:
+	menu._on_help_button_pressed()

@@ -1,0 +1,35 @@
+[gd_scene load_steps=2 format=3 uid="uid://cs0xa5w4xkvc7"]
+
+[ext_resource type="Script" uid="uid://bpwdx87hdw4t5" path="res://menu.gd" id="1_lti8b"]
+
+[node name="Menu" type="CanvasLayer"]
+script = ExtResource("1_lti8b")
+
+[node name="RichTextLabel" type="RichTextLabel" parent="."]
+offset_left = 323.0
+offset_top = 11.0
+offset_right = 822.0
+offset_bottom = 151.0
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 25
+theme_override_font_sizes/normal_font_size = 100
+bbcode_enabled = true
+text = "CRIBBAGE"
+scroll_active = false
+
+[node name="Button" type="Button" parent="."]
+offset_left = 485.0
+offset_top = 288.0
+offset_right = 605.0
+offset_bottom = 322.0
+text = "Play"
+
+[node name="Help_Button" type="Button" parent="."]
+offset_left = 484.0
+offset_top = 335.0
+offset_right = 606.0
+offset_bottom = 368.0
+text = "Instructions"
+
+[connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
+[connection signal="pressed" from="Help_Button" to="." method="_on_help_button_pressed"]
