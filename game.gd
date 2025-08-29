@@ -1,6 +1,13 @@
+## a long, unweildy script that handles most of the game logic
+## This is my first Godot project, so you will notice some inconsistencies in naming conventions, and I definitely would have restructured it
+## differently if I were to build it again today.
+## Instead of refactoring, will likely make another card game in the future and apply these lessons there
+
+## In lieu of refactoring, just going to add a bunch of comments throughout the script
+
 extends Node2D
 
-
+## lots of variables for keeping track of game state, cards played, etc.
 var DECK: Array
 var DECK_SHUFFLED: Array = []
 var CARD_RANK: Dictionary
@@ -34,7 +41,7 @@ var dealer_display: String:
 var card_code: String
 var round_count: int
 
-#@onready var card = $Card
+## point to all the nodes/children needed from the other scenes
 @onready var cards_player_node = $Cards_Player
 @onready var cards_computer_node = $Cards_Computer
 @onready var cards_crib_node = $Cards_Crib
@@ -70,6 +77,7 @@ signal card_was_clicked
 signal button_was_clicked
 
 func _ready():
+	## game starts by showing the main menu, but loops indefinitely to allow movement between menu and gameplay
 	while true:
 		show_menu()
 		await button_was_clicked
@@ -81,6 +89,7 @@ func gameplay_main():
 	prep_playing_field()
 	table_arrow.visible = false
 	
+	## looping through playing a whole game (play_game) and breaking the loop when the player selects the Quit button
 	while true:
 		GAME_OVER = false
 		await play_game()
@@ -105,6 +114,9 @@ func play_game():
 	await table_button.pressed
 	discard_all_cards()
 	
+	## loop for each hand
+	## function names should be pretty well self-documenting for this one, but any other toggles and function calls
+	## peppered in here are used to make sure the screen is displaying the right nodes
 	round_count = 0
 	while not GAME_OVER:
 		round_count += 1
@@ -201,13 +213,13 @@ func shuffle_deck():
 		DECK_SHUFFLED.append(deck_copy[j])
 		deck_copy.remove_at(j)
 
+
 func cut_for_deal():
 	var player_cut: String
 	var computer_cut: String
 	var cut_size: int
 	var player_rank: int
 	var computer_rank: int
-	var cut_winner: String
 	
 	while true:
 		player_cut = DECK_SHUFFLED[randi() % (DECK.size() - 16)]
@@ -244,11 +256,16 @@ func cut_for_deal():
 			game_log.add_text(dealer_display + ' wins the cut\n')
 			break
 	
+
 func sort_card_array(arr):	
+	## added this because it was easier to sort the card codes in an array vs. sorting the actual cards in their nodes
+	## orders cards in hand by rank/sequence
 	arr.sort_custom(func(a,b): return CARD_RANK[a[0]][1] < CARD_RANK[b[0]][1])
 	return arr
 		
 func deal():
+	## deal out the first 12 cards, then assign to the correct player based on current dealer
+	## also just cut the deck now while we're parsing the DECK_SHUFFLED array
 	var hand_1: Array = []
 	var hand_2: Array = []
 
@@ -265,6 +282,7 @@ func deal():
 
 	CARD_CUT = DECK_SHUFFLED[randi() % (DECK.size() - 12) + 12]
 	
+	### can hardcode in hands here for testing purposes
 	#HAND_PLAYER = ['5S', '5D', '5C', 'JH', 'KD','KH']
 	#HAND_COMPUTER = ['AC','AD','AH','AS','KC','KS']
 	#HAND_COMPUTER = ['5S', '5D', '5C', '5C', '5C','5C']
@@ -273,7 +291,6 @@ func deal():
 	#HAND_COMPUTER = ["AC", "AD", "2H", "2S", "3C", "3H"]
 	#CARD_CUT = '5S'
 
-	
 	# show player's cards (face up)
 	for i in range(HAND_PLAYER.size()):
 		var card = card_scene.instantiate()
@@ -292,6 +309,7 @@ func deal():
 		card.show_back()
 		card.selected = false
 		
+	## populate the cut card node and show the card face down on the table
 	var card = card_scene.instantiate()
 	card.code = CARD_CUT
 	cards_cut_node.add_child(card)
@@ -299,12 +317,13 @@ func deal():
 	card.show_back()
 		
 func select_cards_for_crib_player():
-	
+	## card selection handled by logic in card.gd
 	table_button.text = "Send cards to " + dealer_display + "'s crib"
 	table_button.disabled = true
 	table_button.visible = true
 	
-func select_cards_for_crib_computer():	
+func select_cards_for_crib_computer():
+	## on easy difficulty, randomly select two computer cards to send to the crib
 	var card: Area2D
 	table_button.visible = false
 	
@@ -317,27 +336,30 @@ func select_cards_for_crib_computer():
 			cards_computer_node.remove_child(card)
 			card.queue_free()
 					
+					
 func place_crib():	
-	## dummy card to represent dealer
+	## dummy card to represent crib, shifted towards dealer side of table
 	var card = card_scene.instantiate()
 	cards_crib_node.add_child(card)
 	card.position = Vector2(CARD_X[6], CARD_Y['Player_Crib' if PLAYER_DEALER else 'Computer_Crib'])
 	card.show_back()
 	
 func populate_crib():
+	## clear out dummy card, then populate with cards selected by player/computer
 	discard_all_cards(cards_crib_node)
-	
 	CRIB = sort_card_array(CRIB)
-	
+
 	for card_code in CRIB:
 		var card = card_scene.instantiate()
 		card.code = card_code
 		cards_crib_node.add_child(card)
 		card.show_face()
 		
+	## move player and computer cards to right side of play field
 	rearrange_cards()
 	
 func show_cut_card():
+	## show the cut card, scoring for Heels if needed
 	for j in cards_cut_node.get_children():
 		j.show_face()
 		
@@ -347,6 +369,7 @@ func show_cut_card():
 			if GAME_OVER: return
 	
 func rearrange_cards():
+	## realign cards on table based on game state and player/computer position
 	if STAGE == 'score_crib':
 		for i in range(4):
 			cards_crib_node.get_child(i).position = Vector2(CARD_X[i + 2], CARD_Y[dealer_display])
@@ -361,10 +384,13 @@ func rearrange_cards():
 
 
 func play_cards():
+	## main loop of playing through the hand
+	
 	var go_player: bool
 	var go_computer: bool
 	#var i: int = 0
 	
+	## keep track of cards played this round, and determine the first one to play a card
 	PLAYED_ALL = []
 	PLAYER_TURN = not PLAYER_DEALER
 		
@@ -372,6 +398,8 @@ func play_cards():
 		#if i >= 20:
 			#breakpoint
 		if PLAYER_TURN == true and HAND_PLAYER.size() != 0 and go_player == false:
+			## go_player is result of function that checks if any cards can be played (running total <= 31)
+			## the function also applies the overlay to any cards that can't be played so that players can only select valid cards
 			go_player = check_card_eligibility_player()
 			if go_player == true:
 				if go_computer == true:
@@ -387,9 +415,17 @@ func play_cards():
 				LAST_PLAYED = 'Player'
 				if GAME_OVER: return
 		elif PLAYER_TURN == false and HAND_COMPUTER.size() != 0 and go_computer == false:
+			## only in this block because the arrow_flip function is embedded in one of the functions specific to the player
 			arrow_flip()
+			
+			## added this to reduce lag time when it would keep cycling back to the player
+			## if it has already been determined that the player cannot play, remove the wait time
+			## otherwise it is disorienting how quickly the computer plays, so adding in a bit of a pause
 			if go_player == false:
 				await get_tree().create_timer(1.5).timeout
+				
+			## unlike go_player where the function only checks eligibility, this function actually plays the cards and returns the boolean
+			## based on whether or not any cards were actually played
 			go_computer = await play_cards_computer()
 			if go_computer == true:
 				if go_player == true:
@@ -404,6 +440,7 @@ func play_cards():
 				LAST_PLAYED = 'Computer'
 				if GAME_OVER: return
 		
+		## add a bit of a pause so the player can see it landed on 31, then reset the counter
 		if score_played.text == '31' or (go_player and go_computer):
 			await get_tree().create_timer(2.0).timeout
 			await update_running_total('reset')
@@ -411,6 +448,7 @@ func play_cards():
 			go_computer = false
 
 		
+		## used to apply the point for last card as well as bypass some unnecessary loops above if one player is out of cards
 		if HAND_PLAYER.size() == 0 and HAND_COMPUTER.size() == 0:
 			update_game_log({'Last card':1}, turn_display)
 			update_total_score(1, score_total_current_player)
@@ -429,16 +467,23 @@ func play_cards():
 		#i += 1
 
 func calculate_points_in_play():
-	#print(PLAYED_ALL_SEQ)
+	## Last Card and Go logic included in card playing loop
+	
+	## didn't necessarily need to create reversed copies of each array, but I found it easier to work with
+	## particularly since .slice() kept giving me odd results
 	var rev_all = PLAYED_ALL.duplicate()
 	var rev_seq = PLAYED_ALL_SEQ.duplicate()
 	rev_all.reverse()
 	rev_seq.reverse()
 		
+	## landing on 15 or 31
 	if score_played.text in ['15', '31']:
 		update_game_log({score_played.text: 2}, turn_display)
 		update_total_score(2, score_total_current_player)
 		if GAME_OVER: return
+		
+	## pairs (includes 3 and 4 of a kind)
+	## was just easier to keep it all labeled as Pairs, and technically it is a combination of multiple pairs
 	if PLAYED_ALL.size() >= 2:
 		var pairs: int = 1
 		for i in range(1, rev_seq.size()):
@@ -450,6 +495,8 @@ func calculate_points_in_play():
 			update_game_log({str(pairs) + ' of a kind': ((pairs ** 2) - pairs)}, turn_display)
 			update_total_score(((pairs ** 2) - pairs), score_total_current_player)
 			if GAME_OVER: return
+			
+	## runs
 	if PLAYED_ALL_SEQ.size() >= 3:
 		for num_cards in range(rev_seq.size(), 2, -1):
 			var run_len: int = 1
@@ -459,13 +506,10 @@ func calculate_points_in_play():
 			run_array.sort()
 			
 			for j in range(1, num_cards):
-				#print(run_array[j] - 1)
-				#print(run_array[j - 1])
 				if (run_array[j] - 1) == run_array[j - 1]:
 					run_len += 1
 				else:
 					run_len = 1
-			#print(' ')
 			
 			if run_len >= 3:
 				update_game_log({'Run': run_len}, turn_display)
@@ -475,6 +519,8 @@ func calculate_points_in_play():
 			
 						
 func update_total_score(score, player_total):
+	### update the scores and game log with point details
+	### if a player hits 121, set GAME_OVER = true and end the game immediately
 	player_total.text = str(min(int(player_total.text) + score, 121))
 	if player_total.text == '121':
 		if player_total == score_player:
@@ -499,6 +545,7 @@ func play_cards_player():
 	PLAYED_ALL_SEQ.append(CARD_RANK[PLAYED_PLAYER[-1][0]][1])
 
 func play_cards_computer():
+	## on Easy difficulty, Computer selects cards randomly
 	var card: Area2D
 	var played_card_offset: int = 4 - HAND_COMPUTER.size()
 	var eligible_cards: Array
@@ -527,6 +574,7 @@ func play_cards_computer():
 				
 		
 func check_card_eligibility_player():
+	## check to see if any player cards can legally be played
 	var card: Area2D
 	var go_bool: bool
 	
@@ -542,6 +590,7 @@ func check_card_eligibility_player():
 	return go_bool
 			
 func check_card_eligibility_computer():
+	## check to see if any computer cards can legally be played
 	var eligible: Array = []
 	for card_code in HAND_COMPUTER:
 		if CARD_RANK[card_code[0]][0] <= 31 - int(score_played.text):
@@ -550,7 +599,7 @@ func check_card_eligibility_computer():
 	return eligible
 			
 func score_hands():	
-		
+	## determine score order of hands/crib based on dealer
 	if PLAYER_DEALER == true:
 		await score_hand_computer()
 		if GAME_OVER: return
@@ -572,6 +621,8 @@ func score_hand_player():
 	var stage_hand = PLAYED_PLAYER if STAGE == 'score_hands' else CRIB
 	score_dict = calculate_hand_score(stage_hand)
 			
+	## if player entered correct score, apply it and not require confirmation
+	## if not, apply appropriate penalty and require confirmation before proceeding 
 	if int(player_score) == score_dict['Total']:
 		update_game_log(score_dict, 'Player')
 		update_total_score(score_dict['Total'], score_player)
@@ -605,11 +656,9 @@ func score_hand_computer():
 	discard_all_cards(cards_computer_node)
 	
 func score_crib():
-	var score: int
 	var score_dict: Dictionary
 	
 	score_dict = calculate_hand_score(CRIB)
-	score = score_dict['Total']
 	
 	if PLAYER_DEALER == true:
 		await score_hand_player()
@@ -630,6 +679,7 @@ func calculate_hand_score(hand):
 	var run_len: int = 0
 	var run_mult: int = 1
 	
+	## various arrays of hand (+ cut card) that just made the logic below easier to code
 	for card in hand:
 		pips[card[0]] = pips.get(card[0], 0) + 1
 		suits[card[1]] = suits.get(card[1], 0) + 1
@@ -637,7 +687,6 @@ func calculate_hand_score(hand):
 		ranks.append(CARD_RANK[card[0]][0])
 
 	seq.sort()
-	print(seq)
 	ranks.sort()
 	
 	## check for 15s
@@ -708,6 +757,10 @@ func calculate_hand_score(hand):
 	score['Total'] = tmp_calc		
 	
 	return score
+
+
+## everything below this point is a helper function that is pretty self-explanatory by function name alone
+## I might just be lazy right now though, but I'll add comments if something breaks
 
 func ok_to_continue():
 	table_button.text = "OK"

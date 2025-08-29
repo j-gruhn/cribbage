@@ -1,3 +1,7 @@
+## there's a lot more going on in this scene than there probably should be
+## looking at the 2D view of this scene is a mess, and in the future I would split it up to make it easier to work with
+## it all seems to be working fine, though
+
 extends CanvasLayer
 
 @onready var game = get_node("/root/Game")
@@ -23,7 +27,7 @@ func _ready():
 	$ScoreEntry.visible = false
 	$Label_ScoreEntry.visible = false
 	
-
+## one main button, action varies based on the current text of the button
 func _on_button_pressed() -> void:
 	if $Button.text == "Play":
 		$Button.visible = false
@@ -47,6 +51,9 @@ func _on_button_quit_pressed() -> void:
 	$Button_Quit.visible = false
 	game.button_was_clicked.emit()
 	
+## I honestly think these next two functions might not be used at all, though this first one may be what is
+## preventing the user for entering anything besides an integer of length 2
+## I'm just going to leave them both in to be safe
 func _on_score_text_changed(new_text: String):
 	var filtered_text = ''
 	for character in new_text:
@@ -58,7 +65,7 @@ func _on_score_text_changed(new_text: String):
 		$ScoreEntry.caret_column = filtered_text.length()
 	
 func _on_score_submitted(text: String):
-	var score = int(text) if text != '' else 0
+	pass
 
 
 func _on_help_button_pressed() -> void:

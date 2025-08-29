@@ -1,3 +1,6 @@
+## full disclosure, the Help section was mostly written by Claude AI because I didn't feel like figuring out how to get the
+## instructions window to work.  Instructions were written by me, though
+
 extends CanvasLayer
 
 @onready var game = get_node("/root/Game")
@@ -14,6 +17,7 @@ func _ready():
 	create_help_dialog()
 
 func display_menu_cards():
+	## menu was looking a little bare, so I replicated this logic from the game.gd script to show six random cards along the bottom of the screen
 	var HAND_PLAYER = game.DECK_SHUFFLED.slice(0,6)
 	
 	for i in range(HAND_PLAYER.size()):

@@ -17,6 +17,7 @@ var card_scene = preload("res://card.tscn")
 
 signal card_clicked
 
+## assigning suits to red and black colors
 const SUIT_DICT: Dictionary = {
 	'C': ['club', '100101'],
 	'D': ['diamond', 'a81717'],
@@ -38,6 +39,7 @@ func _ready():
 	
 	
 func show_face():
+	## load the card art, fill text boxes, and make visible
 	var path = "res://art/%s.png" % SUIT_DICT[code[1]][0]
 	var tex = load(path)
 	var rank_text: String
@@ -60,17 +62,12 @@ func show_face():
 	overlay.visible = false
 
 func show_back():
-			
 	var tex = load("res://art/back.png")
 	sprite.texture = tex
 	overlay.visible = false
 
-#func select():
-	#overlay.visible = true
-#
-#func deselect():
-	#overlay.visible = false
-
+## if a card is clicked on during selection of crib cards, only two can be selected and button will be enabled/disabled accordingly
+## if a card is clicked on during play, move it to the "played pile" on the left and update the appropriate arrays/nodes
 func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
 	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.is_pressed() and self.get_parent() == cards_player_node:
 		if game.STAGE == 'crib_selection':
