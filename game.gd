@@ -40,7 +40,7 @@ var dealer_display: String:
 
 @export var STAGE: String
 
-var card_code: String
+#var card_code: String
 var round_count: int
 
 ## point to all the nodes/children needed from the other scenes
@@ -326,28 +326,28 @@ func deal():
 
 	# show player's cards (face up)
 	for i in range(HAND_PLAYER.size()):
-		var card = card_scene.instantiate()
-		card.code = HAND_PLAYER[i]
-		cards_player_node.add_child(card)
-		card.position = Vector2(CARD_X[i], CARD_Y['Player'])
-		card.show_face()
-		card.selected = false
+		var j = card_scene.instantiate()
+		j.code = HAND_PLAYER[i]
+		cards_player_node.add_child(j)
+		j.position = Vector2(CARD_X[i], CARD_Y['Player'])
+		j.show_face()
+		j.selected = false
 
 	# show computer's cards (face down)
 	for i in range(HAND_COMPUTER.size()):
-		var card = card_scene.instantiate()
-		card.code = HAND_COMPUTER[i]
-		cards_computer_node.add_child(card)
-		card.position = Vector2(CARD_X[i], CARD_Y['Computer'])
-		card.show_back()
-		card.selected = false
+		var j = card_scene.instantiate()
+		j.code = HAND_COMPUTER[i]
+		cards_computer_node.add_child(j)
+		j.position = Vector2(CARD_X[i], CARD_Y['Computer'])
+		j.show_back()
+		j.selected = false
 		
 	## populate the cut card node and show the card face down on the table
-	var card = card_scene.instantiate()
-	card.code = CARD_CUT
-	cards_cut_node.add_child(card)
-	card.position = Vector2(CARD_X[4.5], CARD_Y['Cut'])
-	card.show_back()
+	var c = card_scene.instantiate()
+	c.code = CARD_CUT
+	cards_cut_node.add_child(c)
+	c.position = Vector2(CARD_X[4.5], CARD_Y['Cut'])
+	c.show_back()
 		
 func select_cards_for_crib_player():
 	## card selection handled by logic in card.gd
@@ -443,14 +443,11 @@ func select_cards_for_crib_computer():
 	## on easy difficulty, randomly select two computer cards to send to the crib
 	var card: Area2D
 	var tmp_hand: Array
-	var tmp_crib: Array
-	var score_dict_hand: Dictionary
-	var score_dict_crib: Dictionary
 	table_button.visible = false
 	
 	if DIFFICULTY == 'EASY':
 		for i in range(2):
-			card_code = HAND_COMPUTER[randi() % HAND_COMPUTER.size()]
+			var card_code = HAND_COMPUTER[randi() % HAND_COMPUTER.size()]
 			CRIB.append(card_code)
 			HAND_COMPUTER.erase(card_code)
 			card = get_child_from_card_node(cards_computer_node, card_code)
@@ -491,13 +488,11 @@ func select_cards_for_crib_computer():
 				
 func calculate_best_crib_decision(bln_hint=false):
 
-	var tmp_hand: Array
 	var tmp_crib: Array
 	var score_dict_hand: Dictionary
 	var score_dict_crib: Dictionary
 	var all_scores: Dictionary
 	var all_cribs: Dictionary
-	var expected_val_dict: Dictionary
 	var highest_score: float = -999.00
 	var highest_hand: Array = []
 	var highest_score_hand: float = 0.00
@@ -860,12 +855,10 @@ func play_cards_computer():
 	var played_card_offset: int = 4 - HAND_COMPUTER.size()
 	var eligible_cards: Array
 	var points: float
-	var points_ev_dict: Dictionary
 	var player_points_ev: float
 	var max_points_ev: float
 	var nextcard_odds: Dictionary
-	var odds_rebalanced: Dictionary
-	var rebalance_sum: float
+	var card_code: String
 	
 	eligible_cards = check_card_eligibility_computer()
 	
@@ -876,22 +869,9 @@ func play_cards_computer():
 			nextcard_odds = create_nextcard_probability_dict()
 			max_points_ev = -999.00
 			for test_card in eligible_cards:
-				#odds_rebalanced = {}
-				#rebalance_sum = 0.00
 				points = float(calculate_points_in_play([test_card]))
 				
 				player_points_ev = 0.00
-				#for key in CARD_RANK:
-					#if int(score_played.text) + CARD_RANK[test_card[0]][0] + CARD_RANK[key][0] <= 31:
-						#odds_rebalanced[key] = nextcard_odds[key]
-						#
-				#for key in odds_rebalanced:
-					#rebalance_sum += nextcard_odds[key]
-					#
-				#for key in odds_rebalanced:
-					#odds_rebalanced[key] = nextcard_odds[key] / rebalance_sum
-				### need to create a subset of key rank here where (running total + test card + next card) <= 31
-				### then rebalance next card odds
 				
 				for key in CARD_RANK:
 					if int(score_played.text) + CARD_RANK[test_card[0]][0] + CARD_RANK[key][0] <= 31:

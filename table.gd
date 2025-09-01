@@ -64,7 +64,7 @@ func _on_score_text_changed(new_text: String):
 		$ScoreEntry.text = filtered_text
 		$ScoreEntry.caret_column = filtered_text.length()
 	
-func _on_score_submitted(text: String):
+func _on_score_submitted(_text: String):
 	pass
 
 

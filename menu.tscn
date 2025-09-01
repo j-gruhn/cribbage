@@ -26,16 +26,16 @@ text = "Play"
 
 [node name="Scenario_Button" type="Button" parent="."]
 offset_left = 613.0
-offset_top = 294.0
+offset_top = 304.0
 offset_right = 744.0
-offset_bottom = 328.0
+offset_bottom = 338.0
 text = "Scenario Mode"
 
 [node name="Help_Button" type="Button" parent="."]
 offset_left = 613.0
-offset_top = 337.0
+offset_top = 356.0
 offset_right = 744.0
-offset_bottom = 370.0
+offset_bottom = 389.0
 text = "Instructions"
 
 [node name="Option_Difficulty" type="OptionButton" parent="."]

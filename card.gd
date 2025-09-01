@@ -17,7 +17,7 @@ var selected: bool
 
 var card_scene = preload("res://card.tscn")
 
-signal card_clicked
+#signal card_clicked
 
 ## assigning suits to red and black colors
 const SUIT_DICT: Dictionary = {
