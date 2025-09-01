@@ -139,6 +139,9 @@ func play_game():
 		game_log.push_color(Color(PLAYER_COLOR[dealer_display]))
 		game_log.add_text(dealer_display + ' deals\n\n')
 		
+		score_player.text = '111'
+		score_computer.text = '111'
+		
 		shuffle_deck()
 		deal()
 		print(HAND_PLAYER)
@@ -456,7 +459,7 @@ func select_cards_for_crib_computer():
 			cards_computer_node.remove_child(card)
 			card.queue_free()
 	elif DIFFICULTY == 'NORMAL':
-		var highest_score: float = 0.00
+		var highest_score: int = 0
 		var highest_hand: Array = []
 		
 		var hands = get_combinations(HAND_COMPUTER, 4)
@@ -470,7 +473,7 @@ func select_cards_for_crib_computer():
 		## if the dealer counts first, pick the lowest cards that guarantee still being able to go out with counting
 			else:
 				for hand in hands:
-					highest_score = calculate_hand_score(hand, 'XX')
+					highest_score = calculate_hand_score(hand, null)['Total']
 					if highest_score > (121 - int(score_computer.text)):
 						highest_hand = hand
 						break
@@ -1017,6 +1020,7 @@ func calculate_hand_score(hand, cut_card=CARD_CUT):
 		seq = [CARD_RANK[cut_card[0]][1]]
 		ranks = [CARD_RANK[cut_card[0]][0]]
 	else:
+		cut_card = 'XX'
 		pips = {'X': 1}
 		seq = [100]
 		ranks = [100]
