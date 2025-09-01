@@ -1,9 +1,11 @@
-[gd_scene load_steps=5 format=3 uid="uid://dqq6ayvlfflto"]
+[gd_scene load_steps=7 format=3 uid="uid://dqq6ayvlfflto"]
 
 [ext_resource type="Script" uid="uid://6jh3nk7s4c0v" path="res://game.gd" id="1_80nbo"]
 [ext_resource type="PackedScene" uid="uid://cv4v0nyghra4c" path="res://card.tscn" id="2_feb5d"]
 [ext_resource type="PackedScene" uid="uid://cnm1x8s24vyl6" path="res://table.tscn" id="3_feb5d"]
 [ext_resource type="PackedScene" uid="uid://cs0xa5w4xkvc7" path="res://menu.tscn" id="4_sb48q"]
+[ext_resource type="PackedScene" uid="uid://cjs1rv2smmp8u" path="res://scenario.tscn" id="5_r0x5m"]
+[ext_resource type="Script" uid="uid://bghnk7pvorphh" path="res://scenario.gd" id="6_3mrqo"]
 
 [node name="Game" type="Node2D"]
 script = ExtResource("1_80nbo")
@@ -23,3 +25,6 @@ position = Vector2(702, 110)
 [node name="Table" parent="." instance=ExtResource("3_feb5d")]
 
 [node name="Menu" parent="." instance=ExtResource("4_sb48q")]
+
+[node name="Scenario" parent="." instance=ExtResource("5_r0x5m")]
+script = ExtResource("6_3mrqo")

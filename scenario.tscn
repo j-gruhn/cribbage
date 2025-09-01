@@ -1,0 +1,70 @@
+[gd_scene load_steps=2 format=3 uid="uid://cjs1rv2smmp8u"]
+
+[ext_resource type="Script" uid="uid://bwmphlk5qbq5h" path="res://table.gd" id="1_cwpiv"]
+
+[node name="Scenario" type="CanvasLayer"]
+script = ExtResource("1_cwpiv")
+
+[node name="Cards_Scenario" type="Node2D" parent="."]
+
+[node name="GameLog" type="RichTextLabel" parent="."]
+offset_left = 890.0
+offset_top = 14.0
+offset_right = 1149.0
+offset_bottom = 580.0
+scroll_following = true
+
+[node name="Line2D" type="Line2D" parent="."]
+position = Vector2(544.778, 439.562)
+points = PackedVector2Array(333.222, -448.562, 333.222, 210.438)
+width = 5.0
+
+[node name="Toggle_CribRecipient" type="CheckButton" parent="."]
+offset_left = 755.0
+offset_top = 529.0
+offset_right = 823.0
+offset_bottom = 570.0
+focus_mode = 0
+
+[node name="Label_CribRecipient" type="Label" parent="."]
+offset_left = 611.0
+offset_top = 532.0
+offset_right = 769.0
+offset_bottom = 570.0
+theme_override_font_sizes/font_size = 20
+text = "Player Crib"
+horizontal_alignment = 2
+
+[node name="Button_Calc" type="Button" parent="."]
+offset_left = 640.0
+offset_top = 577.0
+offset_right = 823.0
+offset_bottom = 613.0
+text = "Calculate"
+
+[node name="Button_ResetSelection" type="Button" parent="."]
+offset_left = 56.0
+offset_top = 539.0
+offset_right = 195.0
+offset_bottom = 576.0
+text = "Reset Selection"
+
+[node name="Button_ResetAll" type="Button" parent="."]
+offset_left = 57.0
+offset_top = 586.0
+offset_right = 195.0
+offset_bottom = 623.0
+text = "Reset All"
+
+[node name="Button_Exit" type="Button" parent="."]
+offset_left = 1022.0
+offset_top = 597.0
+offset_right = 1127.0
+offset_bottom = 628.0
+text = "Exit"
+
+[connection signal="toggled" from="Toggle_CribRecipient" to="." method="_on_toggle_crib_recipient_toggled"]
+[connection signal="pressed" from="Button_Calc" to="." method="_on_button_calc_pressed"]
+[connection signal="pressed" from="Button_ResetSelection" to="." method="_on_button_reset_selection_pressed"]
+[connection signal="pressed" from="Button_ResetAll" to="." method="_on_button_reset_all_pressed"]
+[connection signal="pressed" from="Button_Exit" to="." method="_on_button_exit_pressed"]

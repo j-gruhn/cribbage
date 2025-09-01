@@ -70,3 +70,7 @@ func _on_score_submitted(text: String):
 
 func _on_help_button_pressed() -> void:
 	menu._on_help_button_pressed()
+
+
+func _on_hint_button_pressed() -> void:
+	game.get_crib_hint()

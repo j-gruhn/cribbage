@@ -28,9 +28,10 @@ func display_menu_cards():
 		card.show_face()
 		card.selected = false
 
+	
 func _on_button_pressed() -> void:
 	game.discard_all_cards()
-	game.button_was_clicked.emit()
+	game.button_was_clicked.emit('game')
 	
 func create_help_dialog():
 	print("Creating help dialog...")
@@ -114,3 +115,14 @@ score and the computer will receive the difference (Muggins).
 func _on_help_button_pressed():
 	if help_dialog:
 		help_dialog.popup_centered()
+
+
+func _on_scenario_button_pressed() -> void:
+	game.discard_all_cards()
+	game.button_was_clicked.emit('scenario')
+
+func _on_option_button_item_selected(index: int) -> void:
+	if index == 0:
+		$Label_DifficultyDesc.text = 'Opponent will make all selections randomly'
+	elif index == 1:
+		$Label_DifficultyDesc.text = 'A game against a competent opponent'

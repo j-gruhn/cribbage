@@ -10,6 +10,8 @@ var rank2: RichTextLabel
 @onready var game = get_node("/root/Game")
 @onready var table_button = get_node("/root/Game/Table/Button")
 @onready var cards_player_node = get_node("/root/Game/Cards_Player")
+@onready var scenario_button = get_node("/root/Game/Scenario/Button_Calc")
+@onready var cards_scenario_node = get_node("/root/Game/Scenario/Cards_Scenario")
 
 var selected: bool
 
@@ -36,6 +38,7 @@ func _ready():
 	rank2.visible = false
 	overlay.color = Color(0, 0, 0, 0.7) # semi-transparent black
 	overlay.visible = false
+	overlay.mouse_filter = Control.MOUSE_FILTER_IGNORE
 	
 	
 func show_face():
@@ -48,8 +51,11 @@ func show_face():
 		push_warning("Card image not found: " + path)
 	sprite.texture = tex
 	
+	#if game.STAGE == 'score_hands':
+		#breakpoint
+		
 	for rank in [rank1, rank2]:
-		rank.clear()
+		#rank.clear()
 				
 		if code[0] == 'T':
 			rank_text = ' 10 '
@@ -58,6 +64,7 @@ func show_face():
 			
 		rank.bbcode_text = "[color=#%s]%s[/color]" % [SUIT_DICT[code[1]][1], rank_text]
 		rank.visible = true
+		
 	
 	overlay.visible = false
 
@@ -65,30 +72,51 @@ func show_back():
 	var tex = load("res://art/back.png")
 	sprite.texture = tex
 	overlay.visible = false
+	rank1.visible = false
+	rank2.visible = false
 
 ## if a card is clicked on during selection of crib cards, only two can be selected and button will be enabled/disabled accordingly
 ## if a card is clicked on during play, move it to the "played pile" on the left and update the appropriate arrays/nodes
 func _on_input_event(_viewport: Node, event: InputEvent, _shape_idx: int) -> void:
-	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.is_pressed() and self.get_parent() == cards_player_node:
-		if game.STAGE == 'crib_selection':
+	if event is InputEventMouseButton and event.button_index == MOUSE_BUTTON_LEFT and event.is_pressed():
+		if self.get_parent() == cards_player_node:
+			if game.STAGE == 'crib_selection':
+				if selected == true:
+					self.position += Vector2(0, 50)
+					selected = false
+					game.CRIB.erase(self.code)
+					table_button.disabled = true
+				else:
+					if game.CRIB.size() < 2:
+						self.position += Vector2(0, -50)
+						selected = true
+						game.CRIB.append(self.code)
+						
+						if game.CRIB.size() == 2:
+							table_button.disabled = false
+			if game.STAGE == 'play_cards' and game.PLAYER_TURN == true and overlay.visible == false:
+				game.PLAYED_PLAYER.append(self.code)
+				game.HAND_PLAYER.erase(self.code)
+				self.position = Vector2(game.CARD_X[0] + (game.PLAYED_PLAYER.size() - 1) * 50, game.CARD_Y['Player'])
+				self.z_index = game.PLAYED_PLAYER.size() - 1
+				
+				game.card_was_clicked.emit()
+				
+		elif self.get_parent() == cards_scenario_node:
 			if selected == true:
-				self.position += Vector2(0, 50)
 				selected = false
-				game.CRIB.erase(self.code)
-				table_button.disabled = true
+				overlay.visible = false
+				game.HAND_PLAYER.erase(self.code)
 			else:
-				if game.CRIB.size() < 2:
-					self.position += Vector2(0, -50)
+				if game.HAND_PLAYER.size() < 6:
 					selected = true
-					game.CRIB.append(self.code)
+					overlay.visible = true
+					game.HAND_PLAYER.append(self.code)
 					
-					if game.CRIB.size() == 2:
-						table_button.disabled = false
-		if game.STAGE == 'play_cards' and game.PLAYER_TURN == true and overlay.visible == false:
-			game.PLAYED_PLAYER.append(self.code)
-			game.HAND_PLAYER.erase(self.code)
-			self.position = Vector2(game.CARD_X[0] + (game.PLAYED_PLAYER.size() - 1) * 50, game.CARD_Y['Player'])
-			self.z_index = game.PLAYED_PLAYER.size() - 1
+			if game.HAND_PLAYER.size() == 6:
+				scenario_button.disabled = false
+			else:
+				scenario_button.disabled = true
+				
 			
-			game.card_was_clicked.emit()
 			
