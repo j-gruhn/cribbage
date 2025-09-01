@@ -103,6 +103,8 @@ func gameplay_main():
 	## looping through playing a whole game (play_game) and breaking the loop when the player selects the Quit button
 	while true:
 		GAME_OVER = false
+		score_player.text = '0'
+		score_computer.text = '0'
 		await play_game()
 		
 		table_button.visible = true
