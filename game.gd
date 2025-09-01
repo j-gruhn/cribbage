@@ -955,7 +955,7 @@ func score_hand_player():
 		update_total_score(score_dict['Total'], score_player)
 	else:
 		if int(player_score) > score_dict['Total']:
-			show_hand_score(score_dict, 'Player')
+			show_hand_score(score_dict, 'Player', true)
 			update_total_score(score_dict['Total'], score_player)
 			
 			update_game_log({'Overcounted': 2}, 'Computer')
@@ -963,7 +963,7 @@ func score_hand_player():
 		elif int(player_score) < score_dict['Total']:
 			score_dict['Muggins'] = -(score_dict['Total'] - int(player_score))
 			score_dict['Total'] += score_dict['Muggins']
-			show_hand_score(score_dict, 'Player')
+			show_hand_score(score_dict, 'Player', true)
 			update_total_score(score_dict['Total'], score_player)
 			
 			update_game_log({'Muggins': -score_dict['Muggins']}, 'Computer')
@@ -1171,15 +1171,20 @@ func update_game_log(score_dict, player):
 			break
 		
 	
-func show_hand_score(score_dict, player):
+func show_hand_score(score_dict, player, bln_error=false):
 	update_game_log(score_dict, player)
 	label_scoreround.visible = true
 	score_round.visible = true
 	
 	var round_name: String
 	round_name = ' Round ' if STAGE == 'score_hands' else ' Crib '
-	label_scoreround.text = player + round_name + 'Score'
-	score_round.text = str(score_dict['Total'])
+	
+	if bln_error == true:
+		score_round.text = str(score_dict['Total'] - score_dict.get('Muggins', 0))
+		label_scoreround.text = player + round_name + ' Actual Score'
+	else:
+		score_round.text = str(score_dict['Total'])
+		label_scoreround.text = player + round_name + 'Score'
 	await ok_to_continue()
 	
 	label_scoreround.visible = false
