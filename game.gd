@@ -139,8 +139,8 @@ func play_game():
 		game_log.push_color(Color(PLAYER_COLOR[dealer_display]))
 		game_log.add_text(dealer_display + ' deals\n\n')
 		
-		score_player.text = '111'
-		score_computer.text = '111'
+		#score_player.text = '111'
+		#score_computer.text = '111'
 		
 		shuffle_deck()
 		deal()
@@ -325,9 +325,9 @@ func deal():
 	#HAND_COMPUTER = ['AC','AD','AH','AS','KC','KS']
 	#HAND_COMPUTER = ['5S', '5D', '5C', '5C', '5C','5C']
 	#CARD_CUT = '5H'
-	#HAND_PLAYER = ["AS", "3C", "8H", "TD", "QS", "KS"]
-	#HAND_COMPUTER = ["2D", "4D", "4C", "7H", "QH", "QD"]
-	#CARD_CUT = '6S'
+	HAND_PLAYER = ["TS", "JS", "QH", "QD", "AS", "AS"]
+	HAND_COMPUTER = ["2D", "4D", "4C", "7H", "KH", "KD"]
+	CARD_CUT = 'QS'
 
 	# show player's cards (face up)
 	for i in range(HAND_PLAYER.size()):
@@ -1062,7 +1062,7 @@ func calculate_hand_score(hand, cut_card=CARD_CUT):
 	tmp_calc = 0
 	for i in range(1, 5):
 		if seq[i] == seq[i - 1]:
-			run_mult *= 2
+			run_mult += 1
 		elif (seq[i] - seq[i - 1]) == 1:
 			run_len += 1
 		else:
