@@ -325,9 +325,9 @@ func deal():
 	#HAND_COMPUTER = ['AC','AD','AH','AS','KC','KS']
 	#HAND_COMPUTER = ['5S', '5D', '5C', '5C', '5C','5C']
 	#CARD_CUT = '5H'
-	HAND_PLAYER = ["TS", "JS", "QH", "QD", "AS", "AS"]
-	HAND_COMPUTER = ["2D", "4D", "4C", "7H", "KH", "KD"]
-	CARD_CUT = 'QS'
+	#HAND_PLAYER = ["TS", "JS", "QH", "QD", "AS", "AS"]
+	#HAND_COMPUTER = ["2D", "4D", "4C", "7H", "KH", "KD"]
+	#CARD_CUT = 'QS'
 
 	# show player's cards (face up)
 	for i in range(HAND_PLAYER.size()):
