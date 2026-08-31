@@ -58,13 +58,17 @@ var round_count: int
 @onready var label_played = $Table/Label_RunningTotal
 @onready var score_played = $Table/Score_RunningTotal
 @onready var label_score_entry = $Table/Label_ScoreEntry
-@onready var score_entry = $Table/ScoreEntry
+@onready var score_entry = $Table/Numpad
 @onready var score_player = $Table/Score_Player
 @onready var score_computer = $Table/Score_Computer
 @onready var score_round = $Table/Score_Round
 @onready var label_scoreround = $Table/Label_ScoreRound
 
-@onready var DIFFICULTY = $Menu/Option_Difficulty.get_item_text($Menu/Option_Difficulty.selected)
+@onready var option_difficulty = $Menu/Option_Difficulty
+@onready var option_muggins = $Menu/Option_Muggins
+
+var DIFFICULTY: String
+var BLN_MUGGINS: String
 
 
 var card_scene = preload("res://card.tscn")
@@ -94,7 +98,10 @@ func _ready():
 			await show_scenario_mode()
 
 func gameplay_main():
+	DIFFICULTY = option_difficulty.get_item_text(option_difficulty.selected)
+	BLN_MUGGINS = option_muggins.get_item_text(option_muggins.selected)
 	print(DIFFICULTY)
+	print(BLN_MUGGINS)
 	show_table()
 	prep_playing_field()
 	table_arrow.visible = false
@@ -947,7 +954,7 @@ func score_hands():
 func score_hand_player():
 	var score_dict: Dictionary
 	score_entry_toggle()
-	var player_score = await score_entry.text_submitted
+	var player_score = await score_entry.submitted
 	score_entry_toggle()
 	
 	var stage_hand = PLAYED_PLAYER if STAGE == 'score_hands' else CRIB
@@ -963,16 +970,19 @@ func score_hand_player():
 			show_hand_score(score_dict, 'Player', true)
 			update_total_score(score_dict['Total'], score_player)
 			
-			update_game_log({'Overcounted': 2}, 'Computer')
-			update_total_score(2, score_computer)
+			if BLN_MUGGINS == 'ON':
+				update_game_log({'Overcounted': 2}, 'Computer')
+				update_total_score(2, score_computer)
 		elif int(player_score) < score_dict['Total']:
-			score_dict['Muggins'] = -(score_dict['Total'] - int(player_score))
-			score_dict['Total'] += score_dict['Muggins']
+			if BLN_MUGGINS == 'ON':
+				score_dict['Muggins'] = -(score_dict['Total'] - int(player_score))
+				score_dict['Total'] += score_dict['Muggins']
 			show_hand_score(score_dict, 'Player', true)
 			update_total_score(score_dict['Total'], score_player)
 			
-			update_game_log({'Muggins': -score_dict['Muggins']}, 'Computer')
-			update_total_score(-score_dict['Muggins'], score_computer)
+			if BLN_MUGGINS == 'ON':
+				update_game_log({'Muggins': -score_dict['Muggins']}, 'Computer')
+				update_total_score(-score_dict['Muggins'], score_computer)
 			
 		await ok_to_continue() 
 	
@@ -1150,6 +1160,13 @@ func play_cards_display_toggle(off_override=false):
 	
 func arrow_flip():
 	table_arrow.flip_v = PLAYER_TURN
+	
+func _input(event):
+	if event is InputEventKey and event.pressed and not event.echo:
+		if event.keycode == KEY_ENTER or event.keycode == KEY_KP_ENTER:
+			if table_button.visible and not table_button.disabled:
+				table_button.pressed.emit()
+				get_viewport().set_input_as_handled()
 
 func score_entry_toggle():
 	var hand_name: String
@@ -1159,11 +1176,14 @@ func score_entry_toggle():
 	label_score_entry.visible = not label_score_entry.visible
 	score_entry.visible = not score_entry.visible
 	
+	#if score_entry.visible == true:
+		#score_entry.release_focus()
+		#score_entry.clear()
+		#await get_tree().process_frame
+		#score_entry.grab_focus()
+		
 	if score_entry.visible == true:
-		score_entry.release_focus()
-		score_entry.clear()
-		await get_tree().process_frame
-		score_entry.grab_focus()
+		score_entry.reset()
 
 func update_game_log(score_dict, player):
 	var indent: String

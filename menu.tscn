@@ -18,31 +18,31 @@ text = "CRIBBAGE"
 scroll_active = false
 
 [node name="Button" type="Button" parent="."]
-offset_left = 613.0
-offset_top = 249.0
-offset_right = 744.0
-offset_bottom = 283.0
+offset_left = 688.0
+offset_top = 216.0
+offset_right = 819.0
+offset_bottom = 250.0
 text = "Play"
 
 [node name="Scenario_Button" type="Button" parent="."]
-offset_left = 613.0
-offset_top = 304.0
-offset_right = 744.0
-offset_bottom = 338.0
+offset_left = 688.0
+offset_top = 271.0
+offset_right = 819.0
+offset_bottom = 305.0
 text = "Scenario Mode"
 
 [node name="Help_Button" type="Button" parent="."]
-offset_left = 613.0
-offset_top = 356.0
-offset_right = 744.0
-offset_bottom = 389.0
+offset_left = 688.0
+offset_top = 323.0
+offset_right = 819.0
+offset_bottom = 356.0
 text = "Instructions"
 
 [node name="Option_Difficulty" type="OptionButton" parent="."]
-offset_left = 311.0
-offset_top = 281.0
-offset_right = 427.0
-offset_bottom = 315.0
+offset_left = 404.0
+offset_top = 217.0
+offset_right = 520.0
+offset_bottom = 251.0
 selected = 1
 item_count = 2
 popup/item_0/text = "EASY"
@@ -51,22 +51,53 @@ popup/item_1/text = "NORMAL"
 popup/item_1/id = 1
 
 [node name="Label_Difficulty" type="Label" parent="."]
-offset_left = 312.0
-offset_top = 246.0
-offset_right = 420.0
-offset_bottom = 277.0
+offset_left = 299.0
+offset_top = 221.0
+offset_right = 407.0
+offset_bottom = 252.0
 text = "Difficulty:"
 
 [node name="Label_DifficultyDesc" type="Label" parent="."]
-offset_left = 313.0
-offset_top = 325.0
-offset_right = 557.0
-offset_bottom = 374.0
+offset_left = 301.0
+offset_top = 326.0
+offset_right = 545.0
+offset_bottom = 354.0
 theme_override_font_sizes/font_size = 12
-text = "A game against a competent opponent"
+text = "A game against a competent opponent,"
+autowrap_mode = 2
+
+[node name="Label_Muggins" type="Label" parent="."]
+offset_left = 299.0
+offset_top = 278.0
+offset_right = 436.0
+offset_bottom = 301.0
+text = "Scoring Penalties:"
+
+[node name="Option_Muggins" type="OptionButton" parent="."]
+offset_left = 451.0
+offset_top = 273.0
+offset_right = 522.0
+offset_bottom = 309.0
+selected = 0
+item_count = 2
+popup/item_0/text = "ON"
+popup/item_0/id = 0
+popup/item_1/text = "OFF"
+popup/item_1/id = 1
+
+[node name="Label_MugginsDesc" type="Label" parent="."]
+offset_left = 300.0
+offset_top = 349.0
+offset_right = 547.0
+offset_bottom = 386.0
+theme_override_font_sizes/font_size = 12
+text = "with penalties for incorrect score inputs 
+(muggins/overcounting)"
 autowrap_mode = 2
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]
 [connection signal="pressed" from="Scenario_Button" to="." method="_on_scenario_button_pressed"]
 [connection signal="pressed" from="Help_Button" to="." method="_on_help_button_pressed"]
 [connection signal="item_selected" from="Option_Difficulty" to="." method="_on_option_button_item_selected"]
+[connection signal="item_selected" from="Option_Muggins" to="." method="_on_option_muggins_item_selected"]
+[connection signal="toggled" from="Option_Muggins" to="." method="_on_option_button_toggled"]

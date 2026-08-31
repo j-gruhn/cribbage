@@ -1,8 +1,9 @@
-[gd_scene load_steps=7 format=3 uid="uid://dqq6ayvlfflto"]
+[gd_scene load_steps=8 format=3 uid="uid://dqq6ayvlfflto"]
 
 [ext_resource type="Script" uid="uid://6jh3nk7s4c0v" path="res://game.gd" id="1_80nbo"]
 [ext_resource type="PackedScene" uid="uid://cv4v0nyghra4c" path="res://card.tscn" id="2_feb5d"]
 [ext_resource type="PackedScene" uid="uid://cnm1x8s24vyl6" path="res://table.tscn" id="3_feb5d"]
+[ext_resource type="Script" uid="uid://dr2ngv2bklamk" path="res://numpad.gd" id="4_3mrqo"]
 [ext_resource type="PackedScene" uid="uid://cs0xa5w4xkvc7" path="res://menu.tscn" id="4_sb48q"]
 [ext_resource type="PackedScene" uid="uid://cjs1rv2smmp8u" path="res://scenario.tscn" id="5_r0x5m"]
 [ext_resource type="Script" uid="uid://bghnk7pvorphh" path="res://scenario.gd" id="6_3mrqo"]
@@ -23,6 +24,98 @@ position = Vector2(702, 110)
 [node name="Cards_Cut" type="Node2D" parent="."]
 
 [node name="Table" parent="." instance=ExtResource("3_feb5d")]
+
+[node name="Numpad" type="Control" parent="Table"]
+visible = false
+layout_mode = 3
+anchors_preset = 0
+offset_left = 30.0
+offset_top = 205.0
+offset_right = 30.0
+offset_bottom = 205.0
+script = ExtResource("4_3mrqo")
+
+[node name="Btn_Confirm" type="Button" parent="Table/Numpad"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+offset_left = 85.0
+offset_top = 290.0
+offset_right = 165.0
+offset_bottom = 370.0
+text = "OK"
+
+[node name="PanelContainer" type="PanelContainer" parent="Table/Numpad"]
+layout_mode = 0
+offset_right = 40.0
+offset_bottom = 40.0
+
+[node name="VBoxContainer" type="VBoxContainer" parent="Table/Numpad/PanelContainer"]
+layout_mode = 2
+
+[node name="Display" type="Label" parent="Table/Numpad/PanelContainer/VBoxContainer"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 48
+horizontal_alignment = 1
+vertical_alignment = 1
+
+[node name="GridContainer" type="GridContainer" parent="Table/Numpad/PanelContainer/VBoxContainer"]
+layout_mode = 2
+columns = 6
+
+[node name="Btn_1" type="Button" parent="Table/Numpad/PanelContainer/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+text = "1"
+
+[node name="Btn_2" type="Button" parent="Table/Numpad/PanelContainer/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+text = "2"
+
+[node name="Btn_3" type="Button" parent="Table/Numpad/PanelContainer/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+text = "3"
+
+[node name="Btn_4" type="Button" parent="Table/Numpad/PanelContainer/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+text = "4"
+
+[node name="Btn_5" type="Button" parent="Table/Numpad/PanelContainer/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+text = "5"
+
+[node name="Btn_6" type="Button" parent="Table/Numpad/PanelContainer/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+text = "6"
+
+[node name="Btn_7" type="Button" parent="Table/Numpad/PanelContainer/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+text = "7"
+
+[node name="Btn_8" type="Button" parent="Table/Numpad/PanelContainer/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+text = "8"
+
+[node name="Btn_9" type="Button" parent="Table/Numpad/PanelContainer/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+text = "9"
+
+[node name="Btn_0" type="Button" parent="Table/Numpad/PanelContainer/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+text = "0"
+
+[node name="Btn_Back" type="Button" parent="Table/Numpad/PanelContainer/VBoxContainer/GridContainer"]
+custom_minimum_size = Vector2(80, 80)
+layout_mode = 2
+text = "Delete"
 
 [node name="Menu" parent="." instance=ExtResource("4_sb48q")]
 

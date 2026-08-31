@@ -123,6 +123,12 @@ func _on_scenario_button_pressed() -> void:
 
 func _on_option_button_item_selected(index: int) -> void:
 	if index == 0:
-		$Label_DifficultyDesc.text = 'Opponent will make all selections randomly'
+		$Label_DifficultyDesc.text = 'Opponent makes all selections randomly,'
 	elif index == 1:
-		$Label_DifficultyDesc.text = 'A game against a competent opponent'
+		$Label_DifficultyDesc.text = 'A game against a competent opponent,'
+
+func _on_option_muggins_item_selected(index: int) -> void:
+	if index == 0:
+		$Label_MugginsDesc.text = 'with penalties for incorrect score inputs (muggins/overcounting)'
+	elif index == 1:
+		$Label_MugginsDesc.text = 'and incorrect score inputs are not penalized'
